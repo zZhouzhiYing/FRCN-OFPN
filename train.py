@@ -24,6 +24,7 @@ def fit_ont_epoch(net,epoch,epoch_size,epoch_size_val,gen,genval,Epoch,cuda):
     roi_loc_loss = 0
     roi_cls_loss = 0
     val_toal_loss = 0
+    y=torch.zeros(2,256,200,200).cuda()
     with tqdm(total=epoch_size,desc=f'Epoch {epoch + 1}/{Epoch}',postfix=dict,mininterval=0.3) as pbar:
         for iteration, batch in enumerate(gen):
             if iteration >= epoch_size:
@@ -35,7 +36,12 @@ def fit_ont_epoch(net,epoch,epoch_size,epoch_size_val,gen,genval,Epoch,cuda):
                 else:
                     imgs = Variable(torch.from_numpy(imgs).type(torch.FloatTensor))
 
-            losses = train_util.train_step(imgs, boxes, labels, 1)
+            # losses = train_util.train_step(imgs, boxes, labels, 1)
+            if iteration==0:
+                fy,losses = train_util.train_step(y,imgs, boxes, labels, 1)
+            if iteration>0:
+                fy,losses = train_util.train_step(y,imgs, boxes, labels, 1)
+            y=fy.detach()
             rpn_loc, rpn_cls, roi_loc, roi_cls, total = losses
             total_loss += total.item()
             rpn_loc_loss += rpn_loc.item()
@@ -53,6 +59,7 @@ def fit_ont_epoch(net,epoch,epoch_size,epoch_size_val,gen,genval,Epoch,cuda):
 
     print('Start Validation')
     with tqdm(total=epoch_size_val, desc=f'Epoch {epoch + 1}/{Epoch}',postfix=dict,mininterval=0.3) as pbar:
+        y=torch.zeros(2,256,200,200).cuda()
         for iteration, batch in enumerate(genval):
             if iteration >= epoch_size_val:
                 break

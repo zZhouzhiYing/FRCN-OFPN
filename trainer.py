@@ -34,12 +34,12 @@ class FasterRCNNTrainer(nn.Module):
 
         self.optimizer = optimizer
 
-    def forward(self, imgs, bboxes, labels, scale):
+    def forward(self, y,imgs, bboxes, labels, scale):
         n = imgs.shape[0]
         img_size = imgs.shape[2:]
         
         # 获取公用特征层
-        base_feature = self.faster_rcnn.extractor(imgs)
+        base_feature = self.faster_rcnn.extractor((imgs,y))
 
         # 利用rpn网络获得先验框的得分与调整参数
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.faster_rcnn.rpn(base_feature, img_size, scale)
@@ -114,14 +114,14 @@ class FasterRCNNTrainer(nn.Module):
             
         losses = [rpn_loc_loss_all/n, rpn_cls_loss_all/n, roi_loc_loss_all/n, roi_cls_loss_all/n]
         losses = losses + [sum(losses)]
-        return LossTuple(*losses)
+        return base_feature,LossTuple(*losses)
 
-    def train_step(self, imgs, bboxes, labels, scale):
+    def train_step(self, y,imgs, bboxes, labels, scale):
         self.optimizer.zero_grad()
-        losses = self.forward(imgs, bboxes, labels, scale)
+        fy,losses = self.forward(y,imgs, bboxes, labels, scale)
         losses.total_loss.backward()
         self.optimizer.step()
-        return losses
+        return fy,losses
 
 def _smooth_l1_loss(x, t, sigma):
     sigma_squared = sigma ** 2

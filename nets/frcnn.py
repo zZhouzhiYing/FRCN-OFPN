@@ -8,8 +8,7 @@ from nets.classifier import Resnet50RoIHead, VGG16RoIHead
 from nets.resnet50 import resnet50
 from nets.rpn import RegionProposalNetwork
 from nets.vgg16 import decom_vgg16
-from nets.ofpn import Fpn50
-
+from nets.MyFPN import Fpn50
 
 class FasterRCNN(nn.Module):
     def __init__(self, num_classes, 
@@ -53,9 +52,9 @@ class FasterRCNN(nn.Module):
                 classifier=classifier
             )
             
-    def forward(self, x, scale=1.):
+    def forward(self, x,y, scale=1.):
         img_size = x.shape[2:]
-        base_feature = self.extractor(x)
+        base_feature = self.extractor((x,y))
         _, _, rois, roi_indices, _ = self.rpn(base_feature, img_size, scale)
         roi_cls_locs, roi_scores = self.head(base_feature, rois, roi_indices, img_size)
         return roi_cls_locs, roi_scores, rois, roi_indices
