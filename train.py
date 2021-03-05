@@ -164,13 +164,13 @@ if __name__ == "__main__":
         # ------------------------------------#
         #   冻结一定部分训练
         # ------------------------------------#
-        for param in model.extractor.parameters():
-            param.requires_grad = False
+        # for param in model.extractor.parameters():
+        #     param.requires_grad = False
 
         # ------------------------------------#
         #   冻结bn层
         # ------------------------------------#
-        model.freeze_bn()
+        # model.freeze_bn()
 
         train_util = FasterRCNNTrainer(model, optimizer)
 
@@ -199,13 +199,13 @@ if __name__ == "__main__":
         #------------------------------------#
         #   解冻后训练
         #------------------------------------#
-        for param in model.extractor.parameters():
-            param.requires_grad = True
+        # for param in model.extractor.parameters():
+        #     param.requires_grad = True
 
         # ------------------------------------#
         #   冻结bn层
         # ------------------------------------#
-        model.freeze_bn()
+        # model.freeze_bn()
 
         train_util = FasterRCNNTrainer(model,optimizer)
 
