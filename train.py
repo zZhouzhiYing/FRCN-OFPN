@@ -71,7 +71,7 @@ def fit_ont_epoch(net,epoch,epoch_size,epoch_size_val,gen,genval,Epoch,cuda):
                     imgs = Variable(torch.from_numpy(imgs).type(torch.FloatTensor))
 
                 train_util.optimizer.zero_grad()
-                losses = train_util.forward(imgs, boxes, labels, 1)
+                _,losses = train_util.forward(y,imgs, boxes, labels, 1)
                 _, _, _, _, val_total = losses
 
                 val_toal_loss += val_total.item()
